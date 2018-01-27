@@ -147,7 +147,7 @@ class Board extends React.Component {
           console.log("Before re render, the tiles are: ");
           console.log(newTiles);
           // updateState(newTiles, newScore);
-        }, 10000);
+        }, 1000);
         console.log("Outside Timeout Number1 rt is: " + newRT[0].value);
         console.log("Outside Timeout Number2 rt is: " + newRT[1].value);
       } else {

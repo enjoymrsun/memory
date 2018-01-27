@@ -61,7 +61,6 @@ class Board extends React.Component {
       exists[pos] = 1;
     }
 
-    console.log(arrangeLetters);
     return arrangeLetters;
   }
 
@@ -89,7 +88,6 @@ class Board extends React.Component {
 
   handleClick(p) {
     this.setState((prevState) => {
-      console.log("Begin the First setState: ");
       let newTiles = prevState.tiles;
       let newScore = prevState.score;
       let newRT = prevState.reversedTiles.slice();
@@ -97,7 +95,6 @@ class Board extends React.Component {
       if (newRT.length <= 1) {
         newTiles = _.map(prevState.tiles, (tile) => {
           if (tile.pos === p) {
-            console.log("We click: " + tile.value);
             let rt = _.extend(tile, {reversed: true});
             newRT.push(rt);
             return rt;
@@ -108,7 +105,6 @@ class Board extends React.Component {
         newScore -= 8;
       }
       newCT += 1;
-      console.log("End the First setState! Re render!");
       return {
         tiles: newTiles,
         score: newScore,
@@ -119,15 +115,11 @@ class Board extends React.Component {
 
     window.setTimeout(() => {
       this.setState((pState) => {
-        console.log("Begin the Second setState: ");
         let newTiles = pState.tiles;
         let newScore = pState.score;
         let newRT = pState.reversedTiles.slice();
-        console.log("Second state rt Length: " + newRT.length);
         if (newRT.length == 2) {
-          console.log("We compare: " + newRT[0].value + " " + newRT[1].value);
           if (newRT[0].value === newRT[1].value && newRT[0].pos != newRT[1].pos) {
-            console.log("We have two same value tile with different pos!");
             newTiles = _.map(pState.tiles, (tile) => {
               if (tile.value === newRT[0].value) {
                 return _.extend(tile, {killed: true});
@@ -136,11 +128,7 @@ class Board extends React.Component {
               }
             });
             newScore += 80;
-            console.log("After we kill two tiles: ");
-            console.log(newTiles);
-            console.log("After kill two tiles, we get: " + newScore);
           } else {
-            console.log("We don't have two same value tile OR we click same tile twice which is wrong!");
             newTiles = _.map(pState.tiles, (tile) => {
               if (tile.pos === newRT[0].pos || tile.pos === newRT[1].pos) {
                 return _.extend(tile, {reversed: false});
