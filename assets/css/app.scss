@@ -2,5 +2,21 @@
 
 @import "bootstrap";
 
-.side { padding: 4ex; text-align: center; }
-h1 { text-align: center; }
+h1 {
+  text-align: center;
+  color: #999999;
+}
+
+.tile-box {
+  width: 60px;
+  height: 60px;
+  background-color: #6666FF;
+  border: 2px solid #66FF99;
+  border-radius: 10px;
+}
+
+.text {
+  font-weight: bold;
+  padding: 5px;
+  font-size: 150%;
+}

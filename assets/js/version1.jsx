@@ -10,8 +10,7 @@ export default function run_demo(root) {
 // {
 //   tiles: [List of TileItem],
 //   score: NonNegInteger,
-//   reversedTiles: [List of TileItem],
-//   clickTimes: NonNegInteger
+//   reversedTiles: [List of TileItem]
 // }
 //
 // A TileItem is:
@@ -61,27 +60,26 @@ class Board extends React.Component {
       exists[pos] = 1;
     }
 
+    console.log(arrangeLetters);
     return arrangeLetters;
   }
 
   constructor(props) {
     super(props);
-    this.reset = this.reset.bind(this);
+    this.updateState = this.updateState.bind(this);
     this.state = {
       tiles: this.initialize(),
       score: 0,
-      reversedTiles: [],
-      clickTimes: 0
+      reversedTiles: []
     };
   }
 
-  reset() {
-    this.setState(() => {
+  updateState(newVersionTiles, newVersionScore) {
+    this.setState((prevState) => {
       return {
-        tiles: this.initialize(),
-        score: 0,
-        reversedTiles: [],
-        clickTimes: 0
+        tiles: newVersionTiles,
+        score: newVersionScore,
+        reversedTiles: []
       };
     });
   }
@@ -91,45 +89,52 @@ class Board extends React.Component {
       let newTiles = prevState.tiles;
       let newScore = prevState.score;
       let newRT = prevState.reversedTiles.slice();
-      let newCT = prevState.clickTimes;
-      if (newRT.length <= 1) {
-        newTiles = _.map(prevState.tiles, (tile) => {
-          if (tile.pos === p) {
-            let rt = _.extend(tile, {reversed: true});
-            newRT.push(rt);
-            return rt;
-          } else {
-            return tile;
-          }
-        });
-        newScore -= 8;
-      }
-      newCT += 1;
+      newTiles = _.map(prevState.tiles, (tile) => {
+        if (tile.pos === p) {
+          let rt = _.extend(tile, {reversed: true});
+          newRT.push(rt);
+          return rt;
+        } else {
+          return tile;
+        }
+      });
+      newScore -= 8;
+      console.log("Re render for first setState!");
       return {
         tiles: newTiles,
         score: newScore,
-        reversedTiles: newRT,
-        clickTimes: newCT
+        reversedTiles: newRT
       };
     });
 
-    window.setTimeout(() => {
-      this.setState((pState) => {
-        let newTiles = pState.tiles;
-        let newScore = pState.score;
-        let newRT = pState.reversedTiles.slice();
-        if (newRT.length == 2) {
-          if (newRT[0].value === newRT[1].value && newRT[0].pos != newRT[1].pos) {
-            newTiles = _.map(pState.tiles, (tile) => {
+    // use to make that timeout
+    this.setState((previousState) => {
+      let newTiles = previousState.tiles;
+      let newScore = previousState.score;
+      let newRT = previousState.reversedTiles.slice();
+      console.log("Second setState, newRT length: " + newRT.length);
+      if (newRT.length == 2) {
+        window.setTimeout(() => {
+          console.log("We are in the setTimeout function");
+          console.log("newRT length after Timeout: " + newRT.length);
+          console.log("after Timeout Number1 rt is: " + newRT[0].value);
+          console.log("after Timeout Number2 rt is: " + newRT[1].value);
+          if (newRT[0].value === newRT[1].value) {
+            console.log("We have two same value tile!");
+            newTiles = _.map(previousState.tiles, (tile) => {
               if (tile.value === newRT[0].value) {
                 return _.extend(tile, {killed: true});
               } else {
                 return tile;
               }
             });
-            newScore += 80;
+            newScore += 50;
+            console.log("After we kill two tiles: ");
+            console.log(newTiles);
+            console.log("After kill two tiles, we get: " + newScore);
           } else {
-            newTiles = _.map(pState.tiles, (tile) => {
+            console.log("We Don't have two same value tile!");
+            newTiles = _.map(previousState.tiles, (tile) => {
               if (tile.pos === newRT[0].pos || tile.pos === newRT[1].pos) {
                 return _.extend(tile, {reversed: false});
               } else {
@@ -137,47 +142,37 @@ class Board extends React.Component {
               }
             });
           }
-          newRT = [];
-        }
+          console.log("We now can re render the component");
+          console.log("Before re render, the score is: " + newScore);
+          console.log("Before re render, the tiles are: ");
+          console.log(newTiles);
+          // updateState(newTiles, newScore);
+        }, 1000);
+        console.log("Outside Timeout Number1 rt is: " + newRT[0].value);
+        console.log("Outside Timeout Number2 rt is: " + newRT[1].value);
+      } else {
+        console.log("One in here when only one is reversed.");
         return {
-          tiles: newTiles,
-          score: newScore,
-          reversedTiles: newRT
         };
-      });
-    }, 2000);
+      }
+    });
+
   }
 
-  render() {
-    let tile_list_1 = _.map(this.state.tiles.slice(0, 4), (tile, ii) => {
-      return <TileItem item={tile} key={ii} clickTile={this.handleClick.bind(this)}/>;
-    });
 
-    let tile_list_2 = _.map(this.state.tiles.slice(4, 8), (tile, ii) => {
-      return <TileItem item={tile} key={ii} clickTile={this.handleClick.bind(this)}/>;
-    });
-    let tile_list_3 = _.map(this.state.tiles.slice(8, 12), (tile, ii) => {
-      return <TileItem item={tile} key={ii} clickTile={this.handleClick.bind(this)}/>;
-    });
-    let tile_list_4 = _.map(this.state.tiles.slice(12, 16), (tile, ii) => {
+  render() {
+    let tile_list = _.map(this.state.tiles, (tile, ii) => {
       return <TileItem item={tile} key={ii} clickTile={this.handleClick.bind(this)}/>;
     });
     return (
-      <div className="container">
-        <div className="row">{tile_list_1}</div>
-        <div className="row">{tile_list_2}</div>
-        <div className="row">{tile_list_3}</div>
-        <div className="row">{tile_list_4}</div>
-        <div className="row"><p>Score: {this.state.score}</p></div>
-        <div className="row"><p># of Click: {this.state.clickTimes}</p></div>
-        <div className="row"><ResetButton reset={this.reset.bind(this)} /></div>
+      <div id="ts">
+        {tile_list}
+        <br></br>
+        <br></br>
+        <p>Score: {this.state.score}</p>
       </div>
     );
   }
-}
-
-function ResetButton(props) {
-  return <Button onClick={props.reset}>RESET</Button>;
 }
 
 function TileItem(props) {
